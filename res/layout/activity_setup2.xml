@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xfz="http://schemas.android.com/apk/res/com.xfz.mobilesafe"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        style="@style/TitleStyle"
+        android:text="2.bind with SIM card" />
+
+    <TextView
+        style="@style/ContentStyle"
+        android:text="through binding SIM card:" />
+
+    <TextView
+        style="@style/ContentStyle"
+        android:text="if detects SIM card changed when the phone is restart, app will send alert message" />
+
+    <com.xfz.mobilesafe.view.SettingItemView
+        android:id="@+id/siv_sim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xfz:desc_off="SIM Card not bound"
+        xfz:desc_on="SIM Card bound"
+        xfz:title="touch to bind" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/presence_invisible" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/presence_online" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/presence_invisible" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/presence_invisible" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/bind" />
+
+        <Button
+            android:id="@+id/button2"
+            style="@style/NextStyle" />
+
+        <Button
+            style="@style/PreviousStyle" />
+    </RelativeLayout>
+
+</LinearLayout>

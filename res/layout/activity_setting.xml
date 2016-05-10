@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xfz="http://schemas.android.com/apk/res/com.xfz.mobilesafe"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        style="@style/TitleStyle"
+        android:text="Setting" />
+
+    <com.xfz.mobilesafe.view.SettingItemView
+        android:id="@+id/siv_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xfz:desc_off="auto update is off"
+        xfz:desc_on="auto update is on"
+        xfz:title="Auto Update" />
+
+</LinearLayout>
