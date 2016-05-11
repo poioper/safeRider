@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.xfz.mobilesafe.R;
+import com.xfz.mobilesafe.utils.ToastUtils;
 import com.xfz.mobilesafe.view.SettingItemView;
 
 /**
@@ -57,6 +58,12 @@ public class Setup2Activity extends BaseSetupActivity {
 	 * show next page
 	 */
 	public void showNextPage() {
+		//if sim card not bound, not allowed to go to next step
+		String sim = mPref.getString("sim", null);
+		if (TextUtils.isEmpty(sim)) {
+			ToastUtils.showToast(this, "has to bind sim card!");
+			return;
+		}
 		startActivity(new Intent(this, Setup3Activity.class));
 		finish();
 		overridePendingTransition(R.anim.tran_in, R.anim.tran_out);

@@ -17,13 +17,12 @@
             android:text="safe number" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/tv_safe_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="5dp"
-            android:text="2672652099"
             android:textColor="@color/black"
             android:textSize="16sp" />
     </RelativeLayout>
@@ -41,9 +40,10 @@
 
         <TextView
             style="@style/ContentStyle"
-            android:text="proof open or not" />
+            android:text="proof status" />
 
         <ImageView
+            android:id="@+id/iv_protect"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentRight="true"

@@ -18,11 +18,14 @@
         android:text="alert message will be sent to safe number" />
 
     <EditText
+        android:id="@+id/et_phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="phone"
         android:hint="please enter or select safe number" />
 
     <Button
+        android:onClick="selectContact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="please select contact" 
