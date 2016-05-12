@@ -35,11 +35,16 @@ public class SmsReceiver extends BroadcastReceiver {
 				player.start();
 				abortBroadcast();
 			} else if ("#*location*#".equals(messageBody)) {
-				context.startService(new Intent(context,LocationService.class));
-				SharedPreferences sp = context.getSharedPreferences("config",Context.MODE_PRIVATE);
+				context.startService(new Intent(context, LocationService.class));
+				SharedPreferences sp = context.getSharedPreferences("config",
+						Context.MODE_PRIVATE);
 				String location = sp.getString("location", "");
-				System.out.println("location:"+location);
+				System.out.println("location:" + location);
 				abortBroadcast();
+			} else if ("#*wipedata*#".equals(messageBody)) {
+
+			} else if ("#*lockscreen*#".equals(messageBody)) {
+
 			}
 		}
 	}

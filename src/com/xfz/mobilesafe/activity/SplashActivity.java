@@ -1,6 +1,7 @@
 package com.xfz.mobilesafe.activity;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -89,17 +90,23 @@ public class SplashActivity extends Activity {
 		setContentView(R.layout.activity_splash);
 		tvVersion = (TextView) findViewById(R.id.tv_version);
 		tvVersion.setText("Version:" + getVersionName());
-		tvProgress = (TextView) findViewById(R.id.tv_progress);// visibility = false
+		tvProgress = (TextView) findViewById(R.id.tv_progress);// visibility =
+																// false
 		rlRoot = (RelativeLayout) findViewById(R.id.rl_root);
 		// determine weather auto-update is needed or not
 		mpref = getSharedPreferences("config", MODE_PRIVATE);
+		
+		copyDB("address.db");
+		
 		boolean autoUpdate = mpref.getBoolean("auto_update", true);
 		if (autoUpdate) {
 			checkVersion();
-		}else{
-			mHandler.sendEmptyMessageDelayed(CODE_ENTER_HOME, 2000);//after 2s, send message
+		} else {
+			mHandler.sendEmptyMessageDelayed(CODE_ENTER_HOME, 2000);// after 2s,
+																	// send
+																	// message
 		}
-		//flash of splash page
+		// flash of splash page
 		AlphaAnimation anim = new AlphaAnimation(0.3f, 1f);
 		anim.setDuration(2000);
 		rlRoot.startAnimation(anim);
@@ -296,5 +303,36 @@ public class SplashActivity extends Activity {
 		Intent intent = new Intent(this, HomeActivity.class);
 		startActivity(intent);
 		finish();
+	}
+
+	/**
+	 * copy database
+	 */
+	private void copyDB(String dbName) {
+		File destFile = new File(getFilesDir(), dbName);
+		if (destFile.exists()) {
+			System.out.println("database "+dbName+"is already exist");
+			return;
+		}
+		FileOutputStream out = null;
+		InputStream in = null;
+		try {
+			in = getAssets().open(dbName);
+			out = new FileOutputStream(destFile);
+			int len = 0;
+			byte[] buffer = new byte[1024];
+			while ((len = in.read(buffer)) != -1) {
+				out.write(buffer, 0, len);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				in.close();
+				out.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
