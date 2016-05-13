@@ -89,34 +89,35 @@ containing a value of this type.
         public static final int unlock=0x7f02001d;
     }
     public static final class id {
-        public static final int action_settings=0x7f0b001b;
-        public static final int btn_cancel=0x7f0b0014;
-        public static final int btn_ok=0x7f0b0013;
-        public static final int button2=0x7f0b000a;
-        public static final int cb_protect=0x7f0b000c;
-        public static final int cb_status=0x7f0b001a;
+        public static final int action_settings=0x7f0b001c;
+        public static final int btn_cancel=0x7f0b0015;
+        public static final int btn_ok=0x7f0b0014;
+        public static final int button2=0x7f0b000b;
+        public static final int cb_protect=0x7f0b000d;
+        public static final int cb_status=0x7f0b001b;
         public static final int et_number=0x7f0b0000;
-        public static final int et_password=0x7f0b0012;
-        public static final int et_password_confirm=0x7f0b0015;
-        public static final int et_phone=0x7f0b000b;
+        public static final int et_password=0x7f0b0013;
+        public static final int et_password_confirm=0x7f0b0016;
+        public static final int et_phone=0x7f0b000c;
         public static final int gv_home=0x7f0b0004;
-        public static final int imageView1=0x7f0b0008;
-        public static final int iv_item=0x7f0b0016;
+        public static final int imageView1=0x7f0b0009;
+        public static final int iv_item=0x7f0b0017;
         public static final int iv_protect=0x7f0b0006;
         public static final int lv_list=0x7f0b0002;
-        public static final int rl_root=0x7f0b000d;
-        public static final int siv_sim=0x7f0b0009;
+        public static final int rl_root=0x7f0b000e;
+        public static final int siv_address=0x7f0b0008;
+        public static final int siv_sim=0x7f0b000a;
         public static final int siv_update=0x7f0b0007;
         public static final int textView1=0x7f0b0003;
-        public static final int tv_desc=0x7f0b0019;
-        public static final int tv_item=0x7f0b0017;
-        public static final int tv_name=0x7f0b0010;
-        public static final int tv_phone=0x7f0b0011;
-        public static final int tv_progress=0x7f0b000f;
+        public static final int tv_desc=0x7f0b001a;
+        public static final int tv_item=0x7f0b0018;
+        public static final int tv_name=0x7f0b0011;
+        public static final int tv_phone=0x7f0b0012;
+        public static final int tv_progress=0x7f0b0010;
         public static final int tv_result=0x7f0b0001;
         public static final int tv_safe_phone=0x7f0b0005;
-        public static final int tv_title=0x7f0b0018;
-        public static final int tv_version=0x7f0b000e;
+        public static final int tv_title=0x7f0b0019;
+        public static final int tv_version=0x7f0b000f;
     }
     public static final class layout {
         public static final int activity_address=0x7f030000;

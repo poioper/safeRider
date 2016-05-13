@@ -17,4 +17,12 @@
         xfz:desc_on="auto update is on"
         xfz:title="Auto Update" />
 
+    <com.xfz.mobilesafe.view.SettingItemView
+        android:id="@+id/siv_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xfz:desc_off="attribution is off"
+        xfz:desc_on="attribution is on"
+        xfz:title="Attribution" />
+
 </LinearLayout>
