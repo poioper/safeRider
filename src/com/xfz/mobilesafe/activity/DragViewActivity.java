@@ -28,8 +28,6 @@ public class DragViewActivity extends Activity {
 	private ImageView ivDrag;
 	private int startX;
 	private int startY;
-	private int endX;
-	private int endY;
 	private SharedPreferences mPref;
 
 	@Override
@@ -47,14 +45,26 @@ public class DragViewActivity extends Activity {
 		// onMeasure->onLayout->onDraw
 		// ivDrag.layout(lastX, lastY, lastX + ivDrag.getWidth(),
 		// lastY + ivDrag.getHeight());
+
+		final int winWidth = getWindowManager().getDefaultDisplay().getWidth();
+		final int winHeight = getWindowManager().getDefaultDisplay()
+				.getHeight();
+		
+		if (lastY > winHeight / 2) {
+			tvTop.setVisibility(View.VISIBLE);
+			tvBottom.setVisibility(View.INVISIBLE);
+		} else {
+			tvTop.setVisibility(View.INVISIBLE);
+			tvBottom.setVisibility(View.VISIBLE);
+		}
+
 		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) ivDrag
 				.getLayoutParams();
 		layoutParams.leftMargin = lastX;
 		layoutParams.topMargin = lastY;
-		
+
 		ivDrag.setLayoutParams(layoutParams);
-		
-		
+
 		ivDrag.setOnTouchListener(new OnTouchListener() {
 
 			@Override
@@ -66,8 +76,8 @@ public class DragViewActivity extends Activity {
 					startY = (int) event.getRawY();
 					break;
 				case MotionEvent.ACTION_MOVE:
-					endX = (int) event.getRawX();
-					endY = (int) event.getRawY();
+					int endX = (int) event.getRawX();
+					int endY = (int) event.getRawY();
 
 					int dx = endX - startX;
 					int dy = endY - startY;
@@ -77,6 +87,14 @@ public class DragViewActivity extends Activity {
 
 					int t = ivDrag.getTop() + dy;
 					int b = ivDrag.getBottom() + dy;
+
+					if (t > winHeight / 2) {
+						tvTop.setVisibility(View.VISIBLE);
+						tvBottom.setVisibility(View.INVISIBLE);
+					} else {
+						tvTop.setVisibility(View.INVISIBLE);
+						tvBottom.setVisibility(View.VISIBLE);
+					}
 
 					// refresh the screen
 					ivDrag.layout(l, t, r, b);
@@ -90,7 +108,6 @@ public class DragViewActivity extends Activity {
 					editor.putInt("lastX", ivDrag.getLeft());
 					editor.putInt("lastY", ivDrag.getTop());
 					editor.commit();
-
 					break;
 
 				default:
