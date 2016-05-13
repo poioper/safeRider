@@ -25,4 +25,13 @@
         xfz:desc_on="attribution is on"
         xfz:title="Attribution" />
 
+    <com.xfz.mobilesafe.view.SettingClickView
+        android:id="@+id/scv_address_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <com.xfz.mobilesafe.view.SettingClickView
+        android:id="@+id/scv_address_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

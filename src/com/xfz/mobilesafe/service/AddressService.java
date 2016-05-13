@@ -1,5 +1,6 @@
 package com.xfz.mobilesafe.service;
 
+import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.db.dao.AddressDao;
 
 import android.app.Service;
@@ -7,12 +8,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.view.TextureView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +32,8 @@ public class AddressService extends Service {
 	private MyListener listener;
 	private OutCallReceiver receiver;
 	private WindowManager mWM;
-	private TextView view;
+	private View view;
+	private SharedPreferences mPref;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -45,6 +49,7 @@ public class AddressService extends Service {
 		receiver = new OutCallReceiver();
 		IntentFilter filter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
 		registerReceiver(receiver, filter);
+		mPref = getSharedPreferences("config", MODE_PRIVATE);
 	}
 
 	class MyListener extends PhoneStateListener {
@@ -80,7 +85,6 @@ public class AddressService extends Service {
 			// Toast.makeText(context, address, Toast.LENGTH_LONG).show();
 			showToast(address);
 		}
-
 	}
 
 	@Override
@@ -102,10 +106,15 @@ public class AddressService extends Service {
 		params.format = PixelFormat.TRANSLUCENT;
 		params.type = WindowManager.LayoutParams.TYPE_TOAST;
 		params.setTitle("Toast");
-
-		view = new TextView(this);
-		view.setText(text);
-		view.setTextColor(Color.RED);
+		int style = mPref.getInt("address_style", 0);
+		int[] bgs = new int[] { R.drawable.call_locate_white,
+				R.drawable.call_locate_orange, R.drawable.call_locate_blue,
+				R.drawable.call_locate_gray, R.drawable.call_locate_green };
+		// view = new TextView(this);
+		view = View.inflate(this, R.layout.toast_address, null);
+		view.setBackgroundResource(bgs[style]);
+		TextView tvText = (TextView) view.findViewById(R.id.tv_number);
+		tvText.setText(text);
 		mWM.addView(view, params);
 	}
 }
