@@ -7,9 +7,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.view.TextureView;
+import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -23,6 +28,8 @@ public class AddressService extends Service {
 	private TelephonyManager tm;
 	private MyListener listener;
 	private OutCallReceiver receiver;
+	private WindowManager mWM;
+	private TextView view;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -48,10 +55,16 @@ public class AddressService extends Service {
 			case TelephonyManager.CALL_STATE_RINGING:
 				System.out.println("ringling!!!!!!!");
 				String address = AddressDao.getAddress(incomingNumber);
-				Toast.makeText(AddressService.this, address, Toast.LENGTH_LONG)
-						.show();
+				// Toast.makeText(AddressService.this, address,
+				// Toast.LENGTH_LONG)
+				// .show();
+				showToast(address);
 				break;
-
+			case TelephonyManager.CALL_STATE_IDLE:
+				if (mWM != null && view != null) {
+					mWM.removeView(view);
+					view = null;
+				}
 			default:
 				break;
 			}
@@ -64,7 +77,8 @@ public class AddressService extends Service {
 		public void onReceive(Context context, Intent intent) {
 			String number = getResultData();
 			String address = AddressDao.getAddress(number);
-			Toast.makeText(context, address, Toast.LENGTH_LONG).show();
+			// Toast.makeText(context, address, Toast.LENGTH_LONG).show();
+			showToast(address);
 		}
 
 	}
@@ -74,5 +88,24 @@ public class AddressService extends Service {
 		super.onDestroy();
 		tm.listen(listener, PhoneStateListener.LISTEN_NONE);
 		unregisterReceiver(receiver);
+	}
+
+	private void showToast(String text) {
+		mWM = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+		final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+		;
+		params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+		params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+		params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+				| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+		params.format = PixelFormat.TRANSLUCENT;
+		params.type = WindowManager.LayoutParams.TYPE_TOAST;
+		params.setTitle("Toast");
+
+		view = new TextView(this);
+		view.setText(text);
+		view.setTextColor(Color.RED);
+		mWM.addView(view, params);
 	}
 }
