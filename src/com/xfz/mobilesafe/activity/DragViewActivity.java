@@ -1,19 +1,20 @@
 package com.xfz.mobilesafe.activity;
 
-import com.xfz.mobilesafe.R;
-
-import android.R.integer;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.xfz.mobilesafe.R;
 
 /**
  * modify the position of the attribution toast
@@ -38,6 +39,7 @@ public class DragViewActivity extends Activity {
 		tvBottom = (TextView) findViewById(R.id.tv_bottom);
 		ivDrag = (ImageView) findViewById(R.id.iv_drag);
 		mPref = getSharedPreferences("config", MODE_PRIVATE);
+		final long[] mHits = new long[2];
 
 		int lastX = mPref.getInt("lastX", 0);
 		int lastY = mPref.getInt("lastY", 0);
@@ -49,7 +51,7 @@ public class DragViewActivity extends Activity {
 		final int winWidth = getWindowManager().getDefaultDisplay().getWidth();
 		final int winHeight = getWindowManager().getDefaultDisplay()
 				.getHeight();
-		
+
 		if (lastY > winHeight / 2) {
 			tvTop.setVisibility(View.VISIBLE);
 			tvBottom.setVisibility(View.INVISIBLE);
@@ -64,6 +66,21 @@ public class DragViewActivity extends Activity {
 		layoutParams.topMargin = lastY;
 
 		ivDrag.setLayoutParams(layoutParams);
+
+		ivDrag.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
+				mHits[mHits.length - 1] = SystemClock.uptimeMillis();
+				if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {
+					// put the drag view to the center of the window
+					ivDrag.layout(winWidth / 2 - ivDrag.getWidth() / 2,
+							ivDrag.getTop(), winWidth / 2 + ivDrag.getWidth()
+									/ 2, ivDrag.getBottom());
+				}
+			}
+		});
 
 		ivDrag.setOnTouchListener(new OnTouchListener() {
 
@@ -114,7 +131,7 @@ public class DragViewActivity extends Activity {
 					break;
 				}
 
-				return true;
+				return false;
 			}
 		});
 	}

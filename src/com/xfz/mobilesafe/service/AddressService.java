@@ -3,6 +3,7 @@ package com.xfz.mobilesafe.service;
 import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.db.dao.AddressDao;
 
+import android.R.integer;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.view.Gravity;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
@@ -105,7 +107,15 @@ public class AddressService extends Service {
 				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
 		params.format = PixelFormat.TRANSLUCENT;
 		params.type = WindowManager.LayoutParams.TYPE_TOAST;
+		params.gravity = Gravity.LEFT + Gravity.TOP;
 		params.setTitle("Toast");
+		
+		int lastX = mPref.getInt("lastX", 0);
+		int lastY = mPref.getInt("lastY", 0);
+		
+		params.x = lastX;
+		params.y = lastY;
+		
 		int style = mPref.getInt("address_style", 0);
 		int[] bgs = new int[] { R.drawable.call_locate_white,
 				R.drawable.call_locate_orange, R.drawable.call_locate_blue,
