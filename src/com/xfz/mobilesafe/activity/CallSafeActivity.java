@@ -3,10 +3,12 @@ package com.xfz.mobilesafe.activity;
 import java.util.List;
 
 import com.xfz.mobilesafe.R;
+import com.xfz.mobilesafe.adapter.MyBaseAdapter;
 import com.xfz.mobilesafe.bean.BlackNumberInfo;
 import com.xfz.mobilesafe.db.dao.BlackNumberDao;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,41 +36,52 @@ public class CallSafeActivity extends Activity {
 	private void initData() {
 		BlackNumberDao dao = new BlackNumberDao(this);
 		blackNumberInfos = dao.findAll();
-		CallSafeAdapter adapter = new CallSafeAdapter();
+		CallSafeAdapter adapter = new CallSafeAdapter(blackNumberInfos,this);
 		list_View.setAdapter(adapter);
-		
 	}
 
 	private void initUI() {
 		list_View = (ListView) findViewById(R.id.list_view);
 	}
 
-	private class CallSafeAdapter extends BaseAdapter {
+	private class CallSafeAdapter extends MyBaseAdapter<BlackNumberInfo> {
 
-		@Override
-		public int getCount() {
-			return blackNumberInfos.size();
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return blackNumberInfos.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
+		public CallSafeAdapter(List list, Context mContext) {
+			super(list, mContext);
+			
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = View.inflate(CallSafeActivity.this, R.layout.item_call_safe, null);
-			TextView tv_number = (TextView) view.findViewById(R.id.tv_number_item);
-			TextView tv_mode = (TextView) view.findViewById(R.id.tv_mode);
-			tv_number.setText(blackNumberInfos.get(position).getNumber());
-			tv_mode.setText(blackNumberInfos.get(position).getMode());
-			return view;
+			ViewHolder holder;
+			if (convertView == null) {
+				convertView = View.inflate(CallSafeActivity.this,
+						R.layout.item_call_safe, null);
+				holder = new ViewHolder();
+				holder.tv_number = (TextView) convertView
+						.findViewById(R.id.tv_number_item);
+				holder.tv_mode = (TextView) convertView
+						.findViewById(R.id.tv_mode);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
+			}
+			holder.tv_number
+					.setText(list.get(position).getNumber());
+			String mode = list.get(position).getMode();
+			if (mode.equals("1")) {
+				holder.tv_mode.setText("Phone and SMS intercepted");
+			} else if (mode.equals("2")) {
+				holder.tv_mode.setText("Phone intercepted");
+			} else if (mode.equals("3")) {
+				holder.tv_mode.setText("SMS intercepted");
+			}
+			return convertView;
 		}
+	}
 
+	static class ViewHolder {
+		TextView tv_number;
+		TextView tv_mode;
 	}
 }
