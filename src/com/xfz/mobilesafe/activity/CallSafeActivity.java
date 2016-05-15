@@ -2,19 +2,20 @@ package com.xfz.mobilesafe.activity;
 
 import java.util.List;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.adapter.MyBaseAdapter;
 import com.xfz.mobilesafe.bean.BlackNumberInfo;
 import com.xfz.mobilesafe.db.dao.BlackNumberDao;
-
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 /**
  * 
@@ -24,6 +25,7 @@ import android.widget.TextView;
 public class CallSafeActivity extends Activity {
 	private ListView list_View;
 	private List<BlackNumberInfo> blackNumberInfos;
+	private LinearLayout ll_pb;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +35,32 @@ public class CallSafeActivity extends Activity {
 		initData();
 	}
 
+	private Handler handler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			ll_pb.setVisibility(View.INVISIBLE);
+			CallSafeAdapter adapter = new CallSafeAdapter(blackNumberInfos,
+					CallSafeActivity.this);
+			list_View.setAdapter(adapter);
+		}
+	};
+
 	private void initData() {
-		BlackNumberDao dao = new BlackNumberDao(this);
-		blackNumberInfos = dao.findAll();
-		CallSafeAdapter adapter = new CallSafeAdapter(blackNumberInfos,this);
-		list_View.setAdapter(adapter);
+
+		new Thread() {
+			@Override
+			public void run() {
+				super.run();
+				BlackNumberDao dao = new BlackNumberDao(CallSafeActivity.this);
+				blackNumberInfos = dao.findAll();
+				handler.sendEmptyMessage(0);
+			}
+		}.start();
+
 	}
 
 	private void initUI() {
+		ll_pb = (LinearLayout) findViewById(R.id.ll_pb);
+		ll_pb.setVisibility(View.VISIBLE);
 		list_View = (ListView) findViewById(R.id.list_view);
 	}
 
@@ -48,7 +68,7 @@ public class CallSafeActivity extends Activity {
 
 		public CallSafeAdapter(List list, Context mContext) {
 			super(list, mContext);
-			
+
 		}
 
 		@Override
@@ -66,8 +86,7 @@ public class CallSafeActivity extends Activity {
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			holder.tv_number
-					.setText(list.get(position).getNumber());
+			holder.tv_number.setText(list.get(position).getNumber());
 			String mode = list.get(position).getMode();
 			if (mode.equals("1")) {
 				holder.tv_mode.setText("Phone and SMS intercepted");

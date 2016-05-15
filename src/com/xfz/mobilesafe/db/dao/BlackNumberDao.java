@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.SystemClock;
 
 import com.xfz.mobilesafe.bean.BlackNumberInfo;
 
@@ -112,6 +113,18 @@ public class BlackNumberDao {
 		}
 		cursor.close();
 		db.close();
+		SystemClock.sleep(3000);
 		return blackNumberInfos;
+	}
+	/**
+	 * load data per page
+	 * @param pageNumber
+	 * @param pageSize
+	 * @return
+	 */
+	public List<BlackNumberInfo> findPar(int pageNumber,int pageSize) {
+		SQLiteDatabase db = helper.getReadableDatabase();
+//		db.rawQuery("", selectionArgs)
+		return null;
 	}
 }
