@@ -83,7 +83,7 @@ public class BlackNumberDao {
 	public String findNumber(String number) {
 		String mode = "";
 		SQLiteDatabase db = helper.getReadableDatabase();
-		Cursor cursor = db.query("blacknumber", new String[] { mode },
+		Cursor cursor = db.query("blacknumber", new String[] { "mode" },
 				"number=?", new String[] { number }, null, null, null);
 		if (cursor.moveToNext()) {
 			mode = cursor.getString(0);
@@ -92,15 +92,18 @@ public class BlackNumberDao {
 		db.close();
 		return mode;
 	}
-	
+
 	/**
 	 * find all number in the list
+	 * 
 	 * @return
 	 */
 	public List<BlackNumberInfo> findAll() {
 		SQLiteDatabase db = helper.getReadableDatabase();
 		List<BlackNumberInfo> blackNumberInfos = new ArrayList<BlackNumberInfo>();
-		Cursor cursor = db.query("blacknumber", new String[]{"number","mode"}, null, null, null, null, null);
+		Cursor cursor = db
+				.query("blacknumber", new String[] { "number", "mode" }, null,
+						null, null, null, null);
 		while (cursor.moveToNext()) {
 			BlackNumberInfo blackNumberInfo = new BlackNumberInfo();
 			blackNumberInfo.setNumber(cursor.getString(0));
