@@ -52,6 +52,7 @@
         <activity android:name=".activity.AToolsActivity" />
         <activity android:name=".activity.AddressActivity" />
         <activity android:name=".activity.CallSafeActivity" />
+        <activity android:name=".activity.CallSafeActivity2" />
         <activity
             android:name=".activity.DragViewActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />

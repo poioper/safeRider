@@ -6,11 +6,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -27,33 +27,23 @@ import com.xfz.mobilesafe.utils.ToastUtils;
  * @author xfz:xfz1990@gmail.com
  * @version create time：2016-5-14
  */
-public class CallSafeActivity extends Activity {
+public class CallSafeActivity2 extends Activity {
 	private ListView list_View;
 	private List<BlackNumberInfo> blackNumberInfos;
 	private LinearLayout ll_pb;
 
+	private int mCurrentPageNumber = 0;
+	private int mPageSize = 20;
+	private TextView tv_page_number;
 	private BlackNumberDao dao;
+	private int totalPage;
+	private EditText et_page_number;
 	private CallSafeAdapter adapter;
-
-	/**
-	 * the start index of the page
-	 */
-	private int mStartIndex = 0;
-
-	/**
-	 * batch size
-	 */
-	private int maxCount = 20;
-
-	/**
-	 * total items in db
-	 */
-	private int totalNumber;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_call_safe2);
+		setContentView(R.layout.activity_call_safe);
 		initUI();
 		initData();
 	}
@@ -62,28 +52,22 @@ public class CallSafeActivity extends Activity {
 		public void handleMessage(android.os.Message msg) {
 			ll_pb.setVisibility(View.INVISIBLE);
 			adapter = new CallSafeAdapter(blackNumberInfos,
-					CallSafeActivity.this);
+					CallSafeActivity2.this);
+			tv_page_number.setText(mCurrentPageNumber+1+"/"+totalPage);
 			list_View.setAdapter(adapter);
 		}
 	};
 
 	private void initData() {
-		dao = new BlackNumberDao(CallSafeActivity.this);
-		totalNumber = dao.getTotalNumber();
+
 		new Thread() {
 			@Override
 			public void run() {
 				super.run();
-
-				if (blackNumberInfos == null) {
-					// load data per batch
-					blackNumberInfos = dao.findPar2(mStartIndex, maxCount);
-				} else {
-					// append coming data to the tail of blackNumberInfos in
-					// order to avoid the coming data cover the previous data
-					blackNumberInfos
-							.addAll(dao.findPar2(mStartIndex, maxCount));
-				}
+				dao = new BlackNumberDao(CallSafeActivity2.this);
+				totalPage = dao.getTotalNumber() / mPageSize;
+				// blackNumberInfos = dao.findAll();
+				blackNumberInfos = dao.findPar(mCurrentPageNumber, mPageSize);
 				handler.sendEmptyMessage(0);
 			}
 		}.start();
@@ -94,36 +78,8 @@ public class CallSafeActivity extends Activity {
 		ll_pb = (LinearLayout) findViewById(R.id.ll_pb);
 		ll_pb.setVisibility(View.VISIBLE);
 		list_View = (ListView) findViewById(R.id.list_view);
-
-		// set list_view's Scroll listener
-		list_View.setOnScrollListener(new OnScrollListener() {
-
-			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-				switch (scrollState) {
-				case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
-					int lastVisiblePosition = list_View
-							.getLastVisiblePosition();
-					mStartIndex += maxCount;
-					if (lastVisiblePosition > totalNumber) {
-						ToastUtils.showToast(CallSafeActivity.this,
-								"no more data");
-						return;
-					}
-					initData();
-					break;
-
-				default:
-					break;
-				}
-			}
-
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
-
-			}
-		});
+		tv_page_number = (TextView) findViewById(R.id.tv_page_number);
+		et_page_number = (EditText) findViewById(R.id.et_page_number);
 	}
 
 	private class CallSafeAdapter extends MyBaseAdapter<BlackNumberInfo> {
@@ -137,7 +93,7 @@ public class CallSafeActivity extends Activity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = View.inflate(CallSafeActivity.this,
+				convertView = View.inflate(CallSafeActivity2.this,
 						R.layout.item_call_safe, null);
 				holder = new ViewHolder();
 				holder.tv_number = (TextView) convertView
@@ -147,7 +103,7 @@ public class CallSafeActivity extends Activity {
 				holder.iv_delete = (ImageView) convertView
 						.findViewById(R.id.iv_delete);
 				convertView.setTag(holder);
-
+				
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
@@ -167,15 +123,13 @@ public class CallSafeActivity extends Activity {
 					String number = info.getNumber();
 					boolean result = dao.delete(number);
 					if (result) {
-						ToastUtils.showToast(CallSafeActivity.this,
-								"delete succeed");
+						ToastUtils.showToast(CallSafeActivity2.this, "delete succeed");
 						list.remove(info);
-						// refresh the page
+						//refresh the page
 						adapter.notifyDataSetChanged();
-
-					} else {
-						ToastUtils.showToast(CallSafeActivity.this,
-								"delete fail");
+						
+					}else{
+						ToastUtils.showToast(CallSafeActivity2.this, "delete fail");
 					}
 				}
 			});
@@ -187,5 +141,57 @@ public class CallSafeActivity extends Activity {
 		TextView tv_number;
 		TextView tv_mode;
 		ImageView iv_delete;
+	}
+
+	/**
+	 * pre page
+	 * 
+	 * @param view
+	 */
+	public void prePage(View view) {
+		if (mCurrentPageNumber <= 0) {
+			ToastUtils.showToast(CallSafeActivity2.this,
+					"This is the first page");
+			return;
+		}
+		mCurrentPageNumber--;
+		initData();
+	}
+
+	/**
+	 * next page
+	 * 
+	 * @param view
+	 */
+	public void nextPage(View view) {
+		if (mCurrentPageNumber >= (totalPage - 1)) {
+			ToastUtils
+					.showToast(CallSafeActivity2.this, "This is the last page");
+			return;
+		}
+		mCurrentPageNumber++;
+		initData();
+	}
+
+	/**
+	 * jump to page
+	 * 
+	 * @param view
+	 */
+	public void jump(View view) {
+		String str_page_number = et_page_number.getText().toString().trim();
+		if (TextUtils.isEmpty(str_page_number)) {
+			ToastUtils.showToast(CallSafeActivity2.this,
+					"please enter correct number");
+		} else {
+			int number = Integer.parseInt(str_page_number);
+			if (number >= 0 && number < (totalPage - 1)) {
+				mCurrentPageNumber = number;
+				initData();
+			} else {
+				ToastUtils.showToast(CallSafeActivity2.this,
+						"please enter correct number");
+			}
+		}
 	}
 }

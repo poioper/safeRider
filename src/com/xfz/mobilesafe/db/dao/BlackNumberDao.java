@@ -145,6 +145,30 @@ public class BlackNumberDao {
 		return blackNumberInfos;
 	}
 	
+	/**
+	 * load data per batch
+	 * @param startIndex the start index of the page
+	 * @param maxCount max items per page
+	 * @return
+	 */
+	public List<BlackNumberInfo> findPar2(int startIndex, int maxCount) {
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor cursor = db.rawQuery(
+				"select number,mode from blacknumber limit ? offset ?",
+				new String[] { String.valueOf(maxCount),
+						String.valueOf(startIndex) });
+		ArrayList<BlackNumberInfo> blackNumberInfos = new ArrayList<BlackNumberInfo>();
+		while (cursor.moveToNext()) {
+			BlackNumberInfo blackNumberInfo = new BlackNumberInfo();
+			blackNumberInfo.setMode(cursor.getString(1));
+			blackNumberInfo.setNumber(cursor.getString(0));
+			blackNumberInfos.add(blackNumberInfo);
+		}
+		cursor.close();
+		db.close();
+		return blackNumberInfos;
+	}
+	
 	public int getTotalNumber(){
 		SQLiteDatabase db = helper.getReadableDatabase();
 		Cursor cursor = db.rawQuery("select count(*) from blacknumber", null);
