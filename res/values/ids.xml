@@ -3,4 +3,7 @@
     <item type="id" name="tv_mode"></item>
     <item type="id" name="tv_number_item"></item>
     <item type="id" name="ll_pb"></item>
+    <item type="id" name="et_page_number"></item>
+    <item type="id" name="tv_page_number"></item>
+    <item type="id" name="iv_delete"></item>
 </resources>

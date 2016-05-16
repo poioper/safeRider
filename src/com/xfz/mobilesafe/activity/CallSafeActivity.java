@@ -6,8 +6,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -16,6 +20,7 @@ import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.adapter.MyBaseAdapter;
 import com.xfz.mobilesafe.bean.BlackNumberInfo;
 import com.xfz.mobilesafe.db.dao.BlackNumberDao;
+import com.xfz.mobilesafe.utils.ToastUtils;
 
 /**
  * 
@@ -26,6 +31,14 @@ public class CallSafeActivity extends Activity {
 	private ListView list_View;
 	private List<BlackNumberInfo> blackNumberInfos;
 	private LinearLayout ll_pb;
+
+	private int mCurrentPageNumber = 0;
+	private int mPageSize = 20;
+	private TextView tv_page_number;
+	private BlackNumberDao dao;
+	private int totalPage;
+	private EditText et_page_number;
+	private CallSafeAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +51,9 @@ public class CallSafeActivity extends Activity {
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			ll_pb.setVisibility(View.INVISIBLE);
-			CallSafeAdapter adapter = new CallSafeAdapter(blackNumberInfos,
+			adapter = new CallSafeAdapter(blackNumberInfos,
 					CallSafeActivity.this);
+			tv_page_number.setText(mCurrentPageNumber+1+"/"+totalPage);
 			list_View.setAdapter(adapter);
 		}
 	};
@@ -50,8 +64,10 @@ public class CallSafeActivity extends Activity {
 			@Override
 			public void run() {
 				super.run();
-				BlackNumberDao dao = new BlackNumberDao(CallSafeActivity.this);
-				blackNumberInfos = dao.findAll();
+				dao = new BlackNumberDao(CallSafeActivity.this);
+				totalPage = dao.getTotalNumber() / mPageSize;
+				// blackNumberInfos = dao.findAll();
+				blackNumberInfos = dao.findPar(mCurrentPageNumber, mPageSize);
 				handler.sendEmptyMessage(0);
 			}
 		}.start();
@@ -62,6 +78,8 @@ public class CallSafeActivity extends Activity {
 		ll_pb = (LinearLayout) findViewById(R.id.ll_pb);
 		ll_pb.setVisibility(View.VISIBLE);
 		list_View = (ListView) findViewById(R.id.list_view);
+		tv_page_number = (TextView) findViewById(R.id.tv_page_number);
+		et_page_number = (EditText) findViewById(R.id.et_page_number);
 	}
 
 	private class CallSafeAdapter extends MyBaseAdapter<BlackNumberInfo> {
@@ -82,7 +100,10 @@ public class CallSafeActivity extends Activity {
 						.findViewById(R.id.tv_number_item);
 				holder.tv_mode = (TextView) convertView
 						.findViewById(R.id.tv_mode);
+				holder.iv_delete = (ImageView) convertView
+						.findViewById(R.id.iv_delete);
 				convertView.setTag(holder);
+				
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
@@ -95,6 +116,23 @@ public class CallSafeActivity extends Activity {
 			} else if (mode.equals("3")) {
 				holder.tv_mode.setText("SMS intercepted");
 			}
+			final BlackNumberInfo info = list.get(position);
+			holder.iv_delete.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					String number = info.getNumber();
+					boolean result = dao.delete(number);
+					if (result) {
+						ToastUtils.showToast(CallSafeActivity.this, "delete succeed");
+						list.remove(info);
+						//refresh the page
+						adapter.notifyDataSetChanged();
+						
+					}else{
+						ToastUtils.showToast(CallSafeActivity.this, "delete fail");
+					}
+				}
+			});
 			return convertView;
 		}
 	}
@@ -102,5 +140,58 @@ public class CallSafeActivity extends Activity {
 	static class ViewHolder {
 		TextView tv_number;
 		TextView tv_mode;
+		ImageView iv_delete;
+	}
+
+	/**
+	 * pre page
+	 * 
+	 * @param view
+	 */
+	public void prePage(View view) {
+		if (mCurrentPageNumber <= 0) {
+			ToastUtils.showToast(CallSafeActivity.this,
+					"This is the first page");
+			return;
+		}
+		mCurrentPageNumber--;
+		initData();
+	}
+
+	/**
+	 * next page
+	 * 
+	 * @param view
+	 */
+	public void nextPage(View view) {
+		if (mCurrentPageNumber >= (totalPage - 1)) {
+			ToastUtils
+					.showToast(CallSafeActivity.this, "This is the last page");
+			return;
+		}
+		mCurrentPageNumber++;
+		initData();
+	}
+
+	/**
+	 * jump to page
+	 * 
+	 * @param view
+	 */
+	public void jump(View view) {
+		String str_page_number = et_page_number.getText().toString().trim();
+		if (TextUtils.isEmpty(str_page_number)) {
+			ToastUtils.showToast(CallSafeActivity.this,
+					"please enter correct number");
+		} else {
+			int number = Integer.parseInt(str_page_number);
+			if (number >= 0 && number < (totalPage - 1)) {
+				mCurrentPageNumber = number;
+				initData();
+			} else {
+				ToastUtils.showToast(CallSafeActivity.this,
+						"please enter correct number");
+			}
+		}
 	}
 }

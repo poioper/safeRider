@@ -3,6 +3,7 @@ package com.xfz.mobilesafe.db.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.R.integer;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -116,15 +117,42 @@ public class BlackNumberDao {
 		SystemClock.sleep(3000);
 		return blackNumberInfos;
 	}
+
 	/**
 	 * load data per page
+	 * 
 	 * @param pageNumber
+	 *            current page
 	 * @param pageSize
+	 *            how many data per page
 	 * @return
 	 */
-	public List<BlackNumberInfo> findPar(int pageNumber,int pageSize) {
+	public List<BlackNumberInfo> findPar(int pageNumber, int pageSize) {
 		SQLiteDatabase db = helper.getReadableDatabase();
-//		db.rawQuery("", selectionArgs)
-		return null;
+		Cursor cursor = db.rawQuery(
+				"select number,mode from blacknumber limit ? offset ?",
+				new String[] { String.valueOf(pageSize),
+						String.valueOf(pageSize * pageNumber) });
+		ArrayList<BlackNumberInfo> blackNumberInfos = new ArrayList<BlackNumberInfo>();
+		while (cursor.moveToNext()) {
+			BlackNumberInfo blackNumberInfo = new BlackNumberInfo();
+			blackNumberInfo.setMode(cursor.getString(1));
+			blackNumberInfo.setNumber(cursor.getString(0));
+			blackNumberInfos.add(blackNumberInfo);
+		}
+		cursor.close();
+		db.close();
+		return blackNumberInfos;
+	}
+	
+	public int getTotalNumber(){
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor cursor = db.rawQuery("select count(*) from blacknumber", null);
+		cursor.moveToNext();
+		int res = cursor.getInt(0);
+		cursor.close();
+		db.close();
+		return res;
+		
 	}
 }
