@@ -61,9 +61,14 @@ public class CallSafeActivity extends Activity {
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			ll_pb.setVisibility(View.INVISIBLE);
-			adapter = new CallSafeAdapter(blackNumberInfos,
-					CallSafeActivity.this);
-			list_View.setAdapter(adapter);
+			if (adapter == null) {
+				adapter = new CallSafeAdapter(blackNumberInfos,
+						CallSafeActivity.this);
+				list_View.setAdapter(adapter);
+			}else {
+				adapter.notifyDataSetChanged();
+			}
+			
 		}
 	};
 
@@ -74,7 +79,6 @@ public class CallSafeActivity extends Activity {
 			@Override
 			public void run() {
 				super.run();
-
 				if (blackNumberInfos == null) {
 					// load data per batch
 					blackNumberInfos = dao.findPar2(mStartIndex, maxCount);
@@ -104,15 +108,18 @@ public class CallSafeActivity extends Activity {
 				case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
 					int lastVisiblePosition = list_View
 							.getLastVisiblePosition();
-					mStartIndex += maxCount;
-					if (lastVisiblePosition > totalNumber) {
-						ToastUtils.showToast(CallSafeActivity.this,
-								"no more data");
-						return;
+					if (lastVisiblePosition == (blackNumberInfos.size()-1)) {
+						mStartIndex += maxCount;
+						if (lastVisiblePosition >= totalNumber) {
+							ToastUtils.showToast(CallSafeActivity.this,
+									"no more data");
+							return;
+						}
+						initData();
 					}
-					initData();
+					
 					break;
-
+					
 				default:
 					break;
 				}
@@ -153,11 +160,11 @@ public class CallSafeActivity extends Activity {
 			}
 			holder.tv_number.setText(list.get(position).getNumber());
 			String mode = list.get(position).getMode();
-			if (mode.equals("1")) {
+			if (mode.equals(BlackNumberDao.ALL)) {
 				holder.tv_mode.setText("Phone and SMS intercepted");
-			} else if (mode.equals("2")) {
+			} else if (mode.equals(BlackNumberDao.CALL)) {
 				holder.tv_mode.setText("Phone intercepted");
-			} else if (mode.equals("3")) {
+			} else if (mode.equals(BlackNumberDao.SMS)) {
 				holder.tv_mode.setText("SMS intercepted");
 			}
 			final BlackNumberInfo info = list.get(position);

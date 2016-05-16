@@ -18,6 +18,11 @@ import com.xfz.mobilesafe.bean.BlackNumberInfo;
  * @version create time：2016-5-14
  */
 public class BlackNumberDao {
+	
+	public static final String CALL="3";
+	public static final String SMS="1";
+	public static final String ALL="2";
+	
 	private BlackNumberOpenHelper helper;
 
 	public BlackNumberDao(Context context) {
@@ -79,7 +84,7 @@ public class BlackNumberDao {
 	}
 
 	/**
-	 * 
+	 * find the mode for a specific number
 	 * @return
 	 */
 	public String findNumber(String number) {
@@ -177,6 +182,5 @@ public class BlackNumberDao {
 		cursor.close();
 		db.close();
 		return res;
-		
 	}
 }

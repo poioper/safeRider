@@ -4,9 +4,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        style="@style/TitleStyle"
-        android:text="BlackList Management" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            style="@style/TitleStyle"
+            android:text="BlackList Management" 
+            android:textSize="15sp"
+            android:layout_alignParentLeft="true"/>
+
+        <Button
+            android:onClick="addBlackNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:textSize="15sp"
+            android:text="add" />
+    </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

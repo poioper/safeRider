@@ -11,6 +11,7 @@ import android.view.View.OnClickListener;
 
 import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.service.AddressService;
+import com.xfz.mobilesafe.service.BlackNumberService;
 import com.xfz.mobilesafe.utils.ServiceStatusUtils;
 import com.xfz.mobilesafe.view.SettingClickView;
 import com.xfz.mobilesafe.view.SettingItemView;
@@ -20,6 +21,7 @@ public class SettingActivity extends Activity {
 	private SettingItemView sivAddress;// attribution setting
 	private SettingClickView scvAddressStyle;// attribution setting
 	private SettingClickView scvAddressLocation;// attribution toast location
+	private SettingItemView sv_setting_blacknum;// blacklist setting
 	private SharedPreferences mPref;
 	final String[] items = new String[] { "transparant", "orange", "blue",
 			"gray", "green" };
@@ -34,6 +36,7 @@ public class SettingActivity extends Activity {
 		initAddressView();
 		initAddressStyle();
 		initAddressLocation();
+		initBlackList();
 	}
 
 	/**
@@ -94,6 +97,35 @@ public class SettingActivity extends Activity {
 					sivAddress.setChecked(true);
 					startService(new Intent(SettingActivity.this,
 							AddressService.class));
+				}
+			}
+		});
+	}
+	
+	private void initBlackList() {
+		sv_setting_blacknum = (SettingItemView) findViewById(R.id.sv_setting_blacknum);
+		boolean serviceRunning = ServiceStatusUtils.isServiceRunning(this,
+				"com.xfz.mobilesafe.service.BlackNumberService");
+		if (serviceRunning) {
+			sv_setting_blacknum.setChecked(true);
+		} else {
+			sv_setting_blacknum.setChecked(false);
+		}
+
+		sv_setting_blacknum.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (sv_setting_blacknum.isChecked()) {
+					sv_setting_blacknum.setChecked(false);
+					stopService(new Intent(SettingActivity.this,
+							BlackNumberService.class));
+					System.out.println("service off");
+				} else {
+					sv_setting_blacknum.setChecked(true);
+					startService(new Intent(SettingActivity.this,
+							BlackNumberService.class));
+					System.out.println("service on");
 				}
 			}
 		});
