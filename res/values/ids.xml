@@ -12,4 +12,5 @@
     <item type="id" name="tv_softmanager_name"></item>
     <item type="id" name="tv_softmanager_issd"></item>
     <item type="id" name="tv_softmanager_version"></item>
+    <item type="id" name="tv_softmanager_userorsystem"></item>
 </resources>

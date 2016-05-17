@@ -6,14 +6,21 @@ import java.util.List;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 
 import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.bean.AppInfo;
@@ -32,6 +39,9 @@ public class SoftManagerActivity extends Activity {
 	private List<AppInfo> list;
 	private List<AppInfo> userappinfo;
 	private List<AppInfo> systemappinfo;
+	private TextView tv_softmanager_userorsystem;
+	private AppInfo appInfo;
+	private PopupWindow popupWindow;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +49,85 @@ public class SoftManagerActivity extends Activity {
 		setContentView(R.layout.activity_softmanager);
 		lv_softmanager_application = (ListView) findViewById(R.id.lv_softmanager_application);
 		loading = (ProgressBar) findViewById(R.id.loading);
+		tv_softmanager_userorsystem = (TextView) findViewById(R.id.tv_softmanager_userorsystem);
 		fillData();
+		listviewOnscroll();
+		listviewItemClick();
+	}
+
+	/**
+	 * item click event
+	 */
+	private void listviewItemClick() {
+		lv_softmanager_application
+				.setOnItemClickListener(new OnItemClickListener() {
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
+						// 1.skip textview
+						if (position == 0 || position == userappinfo.size() + 1) {
+							return;
+						}
+						// 2.determine user or sys app
+						if (position <= userappinfo.size()) {
+							appInfo = userappinfo.get(position - 1);
+						} else {
+							appInfo = systemappinfo.get(position
+									- userappinfo.size() - 2);
+						}
+						// 5.delete old one
+						hidePopuwindow();
+						// 3.pop up bubble
+						View contentView = View.inflate(
+								getApplicationContext(), R.layout.pop_window,
+								null);
+						popupWindow = new PopupWindow(contentView,
+								LayoutParams.WRAP_CONTENT,
+								LayoutParams.WRAP_CONTENT);
+						// 4.get the item's position
+						int[] location = new int[2];
+						view.getLocationInWindow(location);
+						int x = location[0];
+						int y = location[1];
+
+						popupWindow.showAtLocation(parent, Gravity.LEFT
+								| Gravity.TOP, x + 70, y - 20);
+					}
+				});
+	}
+
+	private void hidePopuwindow() {
+		if (popupWindow != null) {
+			popupWindow.dismiss();
+			popupWindow = null;
+		}
+	}
+
+	/**
+	 * listview scroll listener
+	 */
+	private void listviewOnscroll() {
+		lv_softmanager_application.setOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+			}
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				hidePopuwindow();
+				if (userappinfo != null && systemappinfo != null) {
+					if (firstVisibleItem >= userappinfo.size() + 1) {
+						tv_softmanager_userorsystem.setText("system apps("
+								+ systemappinfo.size() + ")");
+					} else {
+						tv_softmanager_userorsystem.setText("user apps("
+								+ userappinfo.size() + ")");
+					}
+				}
+			}
+		});
 	}
 
 	private void fillData() {
@@ -155,5 +243,10 @@ public class SoftManagerActivity extends Activity {
 		ImageView iv_itemsoftmanage_icon;
 		TextView tv_softmanager_name, tv_softmanager_issd,
 				tv_softmanager_version;
+	}
+
+	protected void onDestroy() {
+		super.onDestroy();
+		hidePopuwindow();
 	}
 }
