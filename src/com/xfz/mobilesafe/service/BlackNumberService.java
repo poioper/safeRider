@@ -4,9 +4,13 @@ import java.lang.reflect.Method;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.SmsMessage;
@@ -53,13 +57,26 @@ public class BlackNumberService extends Service {
 
 	private class MyPhoneStateListener extends PhoneStateListener {
 		@Override
-		public void onCallStateChanged(int state, String incomingNumber) {
+		public void onCallStateChanged(int state, final String incomingNumber) {
 			super.onCallStateChanged(state, incomingNumber);
 			if (state == TelephonyManager.CALL_STATE_RINGING) {
 				String mode = blackNumberDao.findNumber(incomingNumber);
 				if (mode.equals(BlackNumberDao.CALL)
 						|| mode.equals(BlackNumberDao.ALL)) {
 					endCall();
+					// delete the records
+					final ContentResolver resolver = getContentResolver();
+					final Uri uri = Uri.parse("content://call_log/calls");
+					resolver.registerContentObserver(uri, true,
+							new ContentObserver(new Handler()) {
+								@Override
+								public void onChange(boolean selfChange) {
+									super.onChange(selfChange);
+									resolver.delete(uri, "number=?",
+											new String[] { incomingNumber });
+									resolver.unregisterContentObserver(this);
+								}
+							});
 				}
 			}
 		}
