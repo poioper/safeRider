@@ -1,13 +1,10 @@
 package com.xfz.mobilesafe.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.xfz.mobilesafe.R;
-import com.xfz.mobilesafe.bean.AppInfo;
-import com.xfz.mobilesafe.engine.AppEngine;
-import com.xfz.mobilesafe.utils.MyAsycnTaks;
-
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +12,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.xfz.mobilesafe.R;
+import com.xfz.mobilesafe.bean.AppInfo;
+import com.xfz.mobilesafe.engine.AppEngine;
+import com.xfz.mobilesafe.utils.MyAsycnTaks;
 
 /**
  * 
@@ -27,6 +30,8 @@ public class SoftManagerActivity extends Activity {
 	private ListView lv_softmanager_application;
 	private ProgressBar loading;
 	private List<AppInfo> list;
+	private List<AppInfo> userappinfo;
+	private List<AppInfo> systemappinfo;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,15 @@ public class SoftManagerActivity extends Activity {
 			@Override
 			public void doinBack() {
 				list = AppEngine.getAppInfos(getApplicationContext());
+				userappinfo = new ArrayList<AppInfo>();
+				systemappinfo = new ArrayList<AppInfo>();
+				for (AppInfo appinfo : list) {
+					if (appinfo.isUser()) {
+						userappinfo.add(appinfo);
+					} else {
+						systemappinfo.add(appinfo);
+					}
+				}
 			}
 		}.execute();
 	}
@@ -62,7 +76,7 @@ public class SoftManagerActivity extends Activity {
 
 		@Override
 		public int getCount() {
-			return list.size();
+			return userappinfo.size() + systemappinfo.size() + 2;
 		}
 
 		@Override
@@ -77,9 +91,26 @@ public class SoftManagerActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+
+			if (position == 0) {
+				// add user app count textview
+				TextView textView = new TextView(getApplicationContext());
+				textView.setBackgroundColor(Color.GRAY);
+				textView.setTextColor(Color.WHITE);
+				textView.setText("user apps(" + userappinfo.size() + ")");
+				return textView;
+			} else if (position == userappinfo.size() + 1) {
+				// add sys app counttextview
+				TextView textView = new TextView(getApplicationContext());
+				textView.setBackgroundColor(Color.GRAY);
+				textView.setTextColor(Color.WHITE);
+				textView.setText("system apps(" + systemappinfo.size() + ")");
+				return textView;
+			}
+
 			View view;
 			ViewHolder viewHolder;
-			if (convertView != null) {
+			if (convertView != null && convertView instanceof RelativeLayout) {
 				view = convertView;
 				viewHolder = (ViewHolder) view.getTag();
 			} else {
@@ -96,7 +127,16 @@ public class SoftManagerActivity extends Activity {
 						.findViewById(R.id.tv_softmanager_version);
 				view.setTag(viewHolder);
 			}
-			AppInfo appInfo = list.get(position);
+			AppInfo appInfo = null;
+			// load data from userappinfo and systemappinfo
+			if (position <= userappinfo.size()) {
+				// user app
+				appInfo = userappinfo.get(position - 1);
+			} else {
+				// system app
+				appInfo = systemappinfo.get(position - userappinfo.size() - 2);
+			}
+
 			viewHolder.iv_itemsoftmanage_icon.setImageDrawable(appInfo
 					.getIcon());
 			viewHolder.tv_softmanager_name.setText(appInfo.getName());
