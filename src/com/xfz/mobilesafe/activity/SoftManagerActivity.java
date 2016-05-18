@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.bean.AppInfo;
 import com.xfz.mobilesafe.engine.AppEngine;
+import com.xfz.mobilesafe.utils.AppUtil;
 import com.xfz.mobilesafe.utils.MyAsycnTaks;
 
 /**
@@ -54,14 +56,33 @@ public class SoftManagerActivity extends Activity implements OnClickListener {
 	private AppInfo appInfo;
 	private PopupWindow popupWindow;
 	private Mydapter mydapter;
+	private TextView tv_softmanager_rom;
+	private TextView tv_softmanager_sd;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//init wedgets
 		setContentView(R.layout.activity_softmanager);
 		lv_softmanager_application = (ListView) findViewById(R.id.lv_softmanager_application);
 		loading = (ProgressBar) findViewById(R.id.loading);
 		tv_softmanager_userorsystem = (TextView) findViewById(R.id.tv_softmanager_userorsystem);
+		tv_softmanager_rom = (TextView) findViewById(R.id.tv_softmanager_rom);
+		tv_softmanager_sd = (TextView) findViewById(R.id.tv_softmanager_sd);
+		
+		//obtain available storage
+		long availableSD = AppUtil.getAvailableSD();
+		long availableROM = AppUtil.getAvailableROM();
+		
+		//turn into MB
+		String sdsize = Formatter.formatFileSize(getApplicationContext(), availableSD);
+		String romsize = Formatter.formatFileSize(getApplicationContext(), availableROM);
+		
+		//show result
+		tv_softmanager_sd.setText("sd card:"+sdsize);
+		tv_softmanager_rom.setText("phone storage:"+romsize);
+		
+		//load data
 		fillData();
 		listviewOnscroll();
 		listviewItemClick();
@@ -336,12 +357,12 @@ public class SoftManagerActivity extends Activity implements OnClickListener {
 		Intent intent = new Intent();
 		intent.setAction("android.intent.action.SEND");
 		intent.setType("text/plain");
-		intent.putExtra(Intent.EXTRA_TEXT, "great app" + appInfo.getName() + "");
+		intent.putExtra(Intent.EXTRA_TEXT, "great app "+ appInfo.getName() + "");
 		startActivity(intent);
 	}
 
-	/**
-	 * 详情
+	/**  
+	 * detail
 	 */
 	private void detail() {
 		/**
@@ -357,21 +378,21 @@ public class SoftManagerActivity extends Activity implements OnClickListener {
 	}
 
 	/**
-	 * 启动
+	 * start
 	 */
 	private void start() {
 		PackageManager pm = getPackageManager();
-		// 获取应用程序的启动意图
+		// get intent
 		Intent intent = pm.getLaunchIntentForPackage(appInfo.getPackageName());
 		if (intent != null) {
 			startActivity(intent);
 		} else {
-			Toast.makeText(getApplicationContext(), "系统核心程序,无法启动", 0).show();
+			Toast.makeText(getApplicationContext(), "core app, can't start", 0).show();
 		}
 	}
 
 	/**
-	 * 卸载
+	 * uninstall
 	 */
 	private void uninstall() {
 		/**

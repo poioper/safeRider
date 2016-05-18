@@ -18,5 +18,8 @@
     <item name="ll_popuwindow_detail" type="id"></item>
     <item name="ll_popuwindow_start" type="id"></item>
     <item name="ll_popuwindow_uninstall" type="id"></item>
+    <item name="tv_softmanager_rom" type="id"></item>
+    <item name="tv_softmanager_sd" type="id"></item>
+    <item name="lv_taskmanager_processes" type="id"></item>
 
 </resources>
