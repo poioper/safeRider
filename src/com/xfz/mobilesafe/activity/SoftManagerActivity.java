@@ -4,23 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
+import android.widget.Toast;
 
 import com.xfz.mobilesafe.R;
 import com.xfz.mobilesafe.bean.AppInfo;
@@ -32,7 +43,7 @@ import com.xfz.mobilesafe.utils.MyAsycnTaks;
  * @author xfz:xfz1990@gmail.com
  * @version create time：2016-5-16
  */
-public class SoftManagerActivity extends Activity {
+public class SoftManagerActivity extends Activity implements OnClickListener {
 
 	private ListView lv_softmanager_application;
 	private ProgressBar loading;
@@ -42,6 +53,7 @@ public class SoftManagerActivity extends Activity {
 	private TextView tv_softmanager_userorsystem;
 	private AppInfo appInfo;
 	private PopupWindow popupWindow;
+	private Mydapter mydapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +94,32 @@ public class SoftManagerActivity extends Activity {
 						View contentView = View.inflate(
 								getApplicationContext(), R.layout.pop_window,
 								null);
+
+						// 初始化控件
+						LinearLayout ll_popuwindow_uninstall = (LinearLayout) contentView
+								.findViewById(R.id.ll_popuwindow_uninstall);
+						LinearLayout ll_popuwindow_start = (LinearLayout) contentView
+								.findViewById(R.id.ll_popuwindow_start);
+						LinearLayout ll_popuwindow_share = (LinearLayout) contentView
+								.findViewById(R.id.ll_popuwindow_share);
+						LinearLayout ll_popuwindow_detail = (LinearLayout) contentView
+								.findViewById(R.id.ll_popuwindow_detail);
+						// 给控件设置点击事件
+						ll_popuwindow_uninstall
+								.setOnClickListener(SoftManagerActivity.this);
+						ll_popuwindow_start
+								.setOnClickListener(SoftManagerActivity.this);
+						ll_popuwindow_share
+								.setOnClickListener(SoftManagerActivity.this);
+						ll_popuwindow_detail
+								.setOnClickListener(SoftManagerActivity.this);
+
 						popupWindow = new PopupWindow(contentView,
 								LayoutParams.WRAP_CONTENT,
 								LayoutParams.WRAP_CONTENT);
+						// must have backgroud to execute animation
+						popupWindow.setBackgroundDrawable(new ColorDrawable(
+								Color.TRANSPARENT));
 						// 4.get the item's position
 						int[] location = new int[2];
 						view.getLocationInWindow(location);
@@ -93,6 +128,22 @@ public class SoftManagerActivity extends Activity {
 
 						popupWindow.showAtLocation(parent, Gravity.LEFT
 								| Gravity.TOP, x + 70, y - 20);
+
+						// 6. animation
+						ScaleAnimation scaleAnimation = new ScaleAnimation(0,
+								1, 0, 1, Animation.RELATIVE_TO_SELF, 0,
+								Animation.RELATIVE_TO_SELF, 0.5f);
+						scaleAnimation.setDuration(500);
+
+						AlphaAnimation alphaAnimation = new AlphaAnimation(
+								0.4f, 1.0f);
+						alphaAnimation.setDuration(500);
+
+						AnimationSet animationSet = new AnimationSet(true);
+						animationSet.addAnimation(scaleAnimation);
+						animationSet.addAnimation(alphaAnimation);
+
+						contentView.startAnimation(animationSet);
 					}
 				});
 	}
@@ -140,7 +191,12 @@ public class SoftManagerActivity extends Activity {
 
 			@Override
 			public void postTask() {
-				lv_softmanager_application.setAdapter(new Mydapter());
+				if (mydapter == null) {
+					mydapter = new Mydapter();
+					lv_softmanager_application.setAdapter(mydapter);
+				}else {
+					mydapter.notifyDataSetChanged();
+				}
 				loading.setVisibility(View.INVISIBLE);
 			}
 
@@ -248,5 +304,103 @@ public class SoftManagerActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 		hidePopuwindow();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.ll_popuwindow_uninstall:
+			System.out.println("uninstall");
+			uninstall();
+			break;
+		case R.id.ll_popuwindow_start:
+			System.out.println("open");
+			start();
+			break;
+		case R.id.ll_popuwindow_share:
+			System.out.println("share");
+			share();
+			break;
+		case R.id.ll_popuwindow_detail:
+			System.out.println("detail");
+			detail();
+			break;
+		}
+		hidePopuwindow();
+	}
+
+	/**
+	 * share
+	 */
+	private void share() {
+		Intent intent = new Intent();
+		intent.setAction("android.intent.action.SEND");
+		intent.setType("text/plain");
+		intent.putExtra(Intent.EXTRA_TEXT, "great app" + appInfo.getName() + "");
+		startActivity(intent);
+	}
+
+	/**
+	 * 详情
+	 */
+	private void detail() {
+		/**
+		 * Intent { act=android.settings.APPLICATION_DETAILS_SETTINGS action
+		 * dat=package:com.example.android.apis data
+		 * cmp=com.android.settings/.applications.InstalledAppDetails } from pid
+		 * 228
+		 */
+		Intent intent = new Intent();
+		intent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+		intent.setData(Uri.parse("package:" + appInfo.getPackageName()));
+		startActivity(intent);
+	}
+
+	/**
+	 * 启动
+	 */
+	private void start() {
+		PackageManager pm = getPackageManager();
+		// 获取应用程序的启动意图
+		Intent intent = pm.getLaunchIntentForPackage(appInfo.getPackageName());
+		if (intent != null) {
+			startActivity(intent);
+		} else {
+			Toast.makeText(getApplicationContext(), "系统核心程序,无法启动", 0).show();
+		}
+	}
+
+	/**
+	 * 卸载
+	 */
+	private void uninstall() {
+		/**
+		 * <intent-filter> <action android:name="android.intent.action.VIEW" />
+		 * <action android:name="android.intent.action.DELETE" /> <category
+		 * android:name="android.intent.category.DEFAULT" /> <data
+		 * android:scheme="package" /> </intent-filter>
+		 */
+		// whether a system app or not
+		if (appInfo.isUser()) {
+			if (!appInfo.getPackageName().equals(getPackageName())) {
+				Intent intent = new Intent();
+				intent.setAction("android.intent.action.DELETE");
+				intent.addCategory("android.intent.category.DEFAULT");
+				intent.setData(Uri.parse("package:" + appInfo.getPackageName()));// tel:110
+				startActivityForResult(intent, 0);
+			} else {
+				Toast.makeText(getApplicationContext(),
+						"kill me???", 0).show();
+			}
+		} else {
+			Toast.makeText(getApplicationContext(),
+					"system app, can't uninstall", 0).show();
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		fillData();
 	}
 }

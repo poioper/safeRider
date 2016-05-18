@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="id" name="tv_mode"></item>
-    <item type="id" name="tv_number_item"></item>
-    <item type="id" name="ll_pb"></item>
-    <item type="id" name="et_page_number"></item>
-    <item type="id" name="tv_page_number"></item>
-    <item type="id" name="iv_delete"></item>
-    <item type="id" name="lv_softmanager_application"></item>
-    <item type="id" name="loading"></item>
-    <item type="id" name="iv_itemsoftmanage_icon"></item>
-    <item type="id" name="tv_softmanager_name"></item>
-    <item type="id" name="tv_softmanager_issd"></item>
-    <item type="id" name="tv_softmanager_version"></item>
-    <item type="id" name="tv_softmanager_userorsystem"></item>
+
+    <item name="tv_mode" type="id"></item>
+    <item name="tv_number_item" type="id"></item>
+    <item name="ll_pb" type="id"></item>
+    <item name="et_page_number" type="id"></item>
+    <item name="tv_page_number" type="id"></item>
+    <item name="iv_delete" type="id"></item>
+    <item name="lv_softmanager_application" type="id"></item>
+    <item name="loading" type="id"></item>
+    <item name="iv_itemsoftmanage_icon" type="id"></item>
+    <item name="tv_softmanager_name" type="id"></item>
+    <item name="tv_softmanager_issd" type="id"></item>
+    <item name="tv_softmanager_version" type="id"></item>
+    <item name="tv_softmanager_userorsystem" type="id"></item>
+    <item name="ll_popuwindow_share" type="id"></item>
+    <item name="ll_popuwindow_detail" type="id"></item>
+    <item name="ll_popuwindow_start" type="id"></item>
+    <item name="ll_popuwindow_uninstall" type="id"></item>
+
 </resources>
